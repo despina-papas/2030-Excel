@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission IT-Skills – Berechnungen durchführen</title>
+  <style>
+    :root {
+      --bg: #071224;
+      --line: rgba(255, 187, 69, 0.28);
+      --accent: #ffb945;
+      --accent-2: #ffd98c;
+      --text: #f5f7fb;
+      --muted: #bdd0e8;
+      --shadow: 0 16px 38px rgba(0,0,0,.35);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 82% 10%, rgba(255, 189, 69, 0.30), transparent 12%),
+        radial-gradient(circle at 83% 12%, rgba(255, 222, 169, 0.50), transparent 4%),
+        radial-gradient(circle at 15% 20%, rgba(123,184,255,.10), transparent 14%),
+        linear-gradient(180deg, #04101f 0%, #071224 42%, #09192d 100%);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(#ffffff99 1px, transparent 1px),
+        radial-gradient(#ffffff55 1px, transparent 1px);
+      background-size: 26px 26px, 54px 54px;
+      background-position: 0 0, 12px 12px;
+      opacity: .18;
+      pointer-events: none;
+    }
+
+    .galaxy {
+      position: fixed;
+      top: 28px;
+      right: 28px;
+      width: min(34vw, 420px);
+      aspect-ratio: 1.5;
+      border-radius: 999px;
+      background:
+        radial-gradient(circle at 50% 50%, rgba(255, 239, 204, 0.95), rgba(255, 190, 90, 0.75) 16%, rgba(255, 145, 61, 0.24) 28%, transparent 44%),
+        repeating-radial-gradient(circle at 50% 50%, rgba(255, 184, 74, .55) 0 2px, rgba(255, 184, 74, 0) 2px 12px);
+      transform: rotate(-17deg);
+      filter: blur(.35px) drop-shadow(0 0 25px rgba(255, 180, 72, .45));
+      opacity: .92;
+      pointer-events: none;
+    }
+
+    .shell {
+      width: min(1380px, calc(100% - 28px));
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 22px;
+      padding: 18px 0 0;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 14px 0;
+      max-height: 100vh;
+    }
+
+    .side-panel,
+    .panel {
+      background: linear-gradient(180deg, rgba(10,24,45,.9), rgba(9,20,37,.95));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -80px auto;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,185,69,.17), transparent 70%);
+      pointer-events: none;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .brand-badge {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(255,185,69,.45);
+      background: linear-gradient(180deg, rgba(255,185,69,.18), rgba(255,185,69,.05));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+      font-size: 24px;
+      flex: 0 0 auto;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.08rem;
+      line-height: 1.08;
+      letter-spacing: .02em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .brand p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+      line-height: 1.35;
+    }
+
+    .side-nav {
+      display: flex;
+      flex-direction: column;
+      padding: 8px;
+      gap: 8px;
+    }
+
+    .side-nav a {
+      text-decoration: none;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      padding: 12px 14px;
+      font-size: .95rem;
+      line-height: 1.35;
+      transition: .2s ease;
+    }
+
+    .side-nav a:hover {
+      transform: translateX(2px);
+      border-color: rgba(255,185,69,.55);
+      background: rgba(255,185,69,.10);
+    }
+
+    .side-note {
+      padding: 16px 18px;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.5;
+    }
+
+    .main { min-width: 0; padding-bottom: 42px; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.32fr .95fr;
+      gap: 22px;
+      padding-bottom: 26px;
+      align-items: stretch;
+    }
+
+    .hero-copy, .hero-side, .topic-page { padding: 26px; }
+    .hero-side { display: grid; gap: 16px; }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: .88rem;
+      color: var(--accent-2);
+      background: rgba(255,185,69,.10);
+      border: 1px solid rgba(255,185,69,.22);
+      margin-bottom: 14px;
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(2rem, 4.2vw, 3.7rem);
+      line-height: .95;
+      letter-spacing: .01em;
+      text-transform: uppercase;
+      max-width: 14ch;
+    }
+
+    .hero h2 span { color: var(--accent); }
+
+    .hero p.lead,
+    .box p,
+    .box li,
+    .box label,
+    .mission-card p,
+    .mission-card li,
+    .mini span,
+    .stall p,
+    .topic-title p,
+    .section-head p {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: .95rem;
+    }
+
+    .hero p.lead { font-size: 1.03rem; margin: 16px 0 0; max-width: 66ch; }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .btn, button, .chip {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255,185,69,.12);
+      color: var(--text);
+      padding: 12px 16px;
+      border-radius: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: .95rem;
+      transition: .2s ease;
+    }
+
+    .btn:hover, button:hover, .chip:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,185,69,.55);
+      background: rgba(255,185,69,.10);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, rgba(255,185,69,.26), rgba(255,185,69,.12));
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(255,185,69,.14);
+    }
+
+    .grid-mini,
+    .topic-grid,
+    .practice-grid,
+    .level-entry-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .grid-mini { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 20px; }
+    .topic-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .practice-grid { grid-template-columns: repeat(4, minmax(0,1fr)); margin-top: 18px; }
+    .level-entry-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .mini, .mission-card, .box, .stall, .practice-grid .panel {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.06);
+      background: rgba(255,255,255,.04);
+    }
+
+    .mini strong, .mission-card h3, .practice-grid strong, .box h5, .section-head h3 {
+      display: block;
+      margin: 0 0 8px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    .section-head h3 {
+      font-size: clamp(1.35rem, 2.2vw, 1.95rem);
+      margin-bottom: 0;
+    }
+
+    .section-head { margin: 18px 0 16px; }
+
+    .stall {
+      min-height: 280px;
+      display: grid;
+      grid-template-rows: auto auto auto 1fr auto;
+      gap: 12px;
+    }
+
+    .stall .icon, .topic-title .icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,185,69,.12);
+      border: 1px solid rgba(255,185,69,.24);
+      font-size: 28px;
+      flex: 0 0 auto;
+    }
+
+    .stall h4, .topic-title h4 {
+      margin: 0;
+      text-transform: uppercase;
+      line-height: 1.12;
+    }
+
+    .stall h4 { font-size: 1.08rem; }
+    .topic-title h4 { font-size: clamp(1.35rem, 2.2vw, 1.95rem); color: var(--accent); }
+
+    .levels {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .level, .level-entry-badge {
+      font-size: .82rem;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.10);
+      width: fit-content;
+    }
+
+    .level.green, .level-entry.green .level-entry-badge { border-color: rgba(111,226,165,.34); color: #aaf3ca; }
+    .level.yellow, .level-entry.yellow .level-entry-badge { border-color: rgba(255,215,110,.34); color: #ffe59a; }
+    .level.red, .level-entry.red .level-entry-badge { border-color: rgba(255,154,154,.34); color: #ffc3c3; }
+
+    .level-entry {
+      display: grid;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--text);
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.04);
+      transition: .2s ease;
+      min-height: 150px;
+    }
+
+    .level-entry:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,185,69,.55);
+      background: rgba(255,185,69,.10);
+    }
+
+    .level-entry strong { font-size: 1rem; line-height: 1.2; }
+    .level-entry span { line-height: 1.45; font-size: .93rem; color: var(--muted); }
+    .level-entry.green { border-color: rgba(111,226,165,.34); }
+    .level-entry.yellow { border-color: rgba(255,215,110,.34); }
+    .level-entry.red { border-color: rgba(255,154,154,.34); }
+
+    .pages { display: grid; gap: 18px; margin: 22px 0 0; }
+    .topic-page { scroll-margin-top: 24px; }
+
+    .topic-head {
+      display: flex;
+      gap: 16px;
+      align-items: start;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .topic-title {
+      display: flex;
+      gap: 14px;
+      align-items: start;
+      max-width: 760px;
+    }
+
+    .topic-nav {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .topic-layout {
+      display: grid;
+      grid-template-columns: 1.15fr .92fr;
+      gap: 18px;
+    }
+
+    .stack, .goal-list, .level-cards, .video-card, form { display: grid; gap: 12px; }
+
+    .goal {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255,185,69,.08);
+      border: 1px solid rgba(255,185,69,.18);
+    }
+
+    .level-card {
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.03);
+    }
+
+    .level-card strong { display: block; margin-bottom: 6px; }
+    .level-card.green strong { color: #aaf3ca; }
+    .level-card.yellow strong { color: #ffe59a; }
+    .level-card.red strong { color: #ffc3c3; }
+
+    .video-slot {
+      border-radius: 18px;
+      border: 1px dashed rgba(255,185,69,.4);
+      background: linear-gradient(180deg, rgba(255,185,69,.09), rgba(255,255,255,.03));
+      min-height: 190px;
+      padding: 18px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .video-slot strong { color: var(--accent); display: block; margin-bottom: 8px; }
+
+    .video-links { display: grid; gap: 8px; }
+    .video-links a {
+      text-decoration: none;
+      color: var(--text);
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 10px 12px;
+    }
+
+    .video-links a:hover { background: rgba(255,185,69,.10); border-color: rgba(255,185,69,.26); }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+
+    input, textarea, select {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      color: var(--text);
+      padding: 12px 13px;
+      font: inherit;
+    }
+
+    textarea { min-height: 88px; resize: vertical; }
+
+    .radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      align-items: center;
+    }
+
+    .radio-pill {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 9px 11px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    input[type="radio"] {
+      width: auto;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .helper {
+      color: #9ec0dd;
+      font-size: .85rem;
+      line-height: 1.45;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .success {
+      font-size: .9rem;
+      color: #aef2cb;
+      display: none;
+    }
+
+    .footer-note {
+      padding: 24px 0 42px;
+      color: var(--muted);
+      font-size: .92rem;
+      line-height: 1.55;
+    }
+
+    code {
+      background: rgba(255,255,255,.07);
+      padding: 2px 6px;
+      border-radius: 8px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .9em;
+    }
+
+    @media (max-width: 1180px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; max-height: none; }
+      .side-nav { flex-direction: row; flex-wrap: wrap; }
+      .hero, .topic-layout { grid-template-columns: 1fr; }
+      .topic-grid, .practice-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .level-entry-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .shell { width: min(100% - 18px, 1380px); }
+      .topic-grid, .practice-grid, .grid-mini, .field-grid, .level-entry-grid { grid-template-columns: 1fr; }
+      .hero-copy, .hero-side, .topic-page { padding: 18px; }
+      .topic-nav { justify-content: start; }
+      .galaxy { width: 68vw; right: 4vw; top: 12px; }
+      .side-nav { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="galaxy" aria-hidden="true"></div>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="side-panel">
+        <div class="brand">
+          <div class="brand-badge">📊</div>
+          <div>
+            <h1>Mission – IT-Skills: Berechnungen durchführen</h1>
+            <p>Station für professionelle Kostenzusammenstellungen in Excel</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-panel">
+        <nav class="side-nav" aria-label="Seitennavigation">
+          <a href="#start">Start</a>
+          <a href="#themen">Alle Themen</a>
+          <a href="#seite-visuell">Daten eingeben und visuell ansprechend gestalten</a>
+          <a href="#seite-struktur">Daten sauber strukturieren</a>
+          <a href="#seite-berechnungen">Berechnungen ausführen</a>
+          <a href="#seite-szenarien">Kosten-Szenarien vergleichen</a>
+        </nav>
+      </div>
+
+      <div class="side-panel side-note">
+        Scannen Sie den QR-Code, wählen Sie ein Thema und arbeiten Sie auf Ihrem Niveau: <strong>grün</strong>, <strong>gelb</strong> oder <strong>rot</strong>.
+      </div>
+    </aside>
+
+    <main class="main" id="start">
+      <section class="hero">
+        <div class="panel hero-copy">
+          <div class="eyebrow">⚡ QR-Code → Thema wählen → Auftrag lösen → kurz reflektieren</div>
+          <h2>Ihre Station für <span>Excel-Kompetenzen</span> im Projekt.</h2>
+          <p class="lead">
+            An dieser Station können Sie lernen, wie Sie eine <strong>professionelle Kostenzusammenstellung</strong>
+            in Excel erstellen. Sie wählen selbst, womit Sie starten möchten: <strong>Daten eingeben und visuell ansprechend gestalten</strong>,
+            <strong>Daten sauber strukturieren</strong>, <strong>Berechnungen ausführen</strong> oder <strong>Kosten-Szenarien vergleichen</strong>.
+          </p>
+          <p class="lead">
+            Jede Themen-Seite bietet Ihnen ein klares Ziel, kurze Anweisungen, drei Schwierigkeitsstufen,
+            kurze Video-Hilfen sowie ein kurzes Feedback und eine Reflexion am Schluss.
+          </p>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#themen">Zu allen Themen</a>
+            <a class="btn" href="#seite-szenarien">Direkt zu Kosten-Szenarien vergleichen</a>
+          </div>
+
+          <section class="box" style="margin-top:18px; background:rgba(255,255,255,.035);">
+            <h5 style="margin:0 0 12px; color:var(--accent);">Direkter Einstieg über Niveau</h5>
+            <p style="margin:0 0 14px; color:var(--muted);">Sie können auch direkt mit dem passenden Niveau starten. Diese Buttons funktionieren gleich wie Ihre drei QR-Codes.</p>
+            <div class="level-entry-grid">
+              <a class="level-entry green" href="?level=gruen#themen">
+                <span class="level-entry-badge">Grün</span>
+                <strong>Einsteiger-Niveau</strong>
+                <span>Sie möchten mit einer klaren, einfachen Aufgabenstufe starten.</span>
+              </a>
+              <a class="level-entry yellow" href="?level=gelb#themen">
+                <span class="level-entry-badge">Gelb</span>
+                <strong>Mittleres Niveau</strong>
+                <span>Sie kennen Excel bereits etwas und möchten sicherer arbeiten.</span>
+              </a>
+              <a class="level-entry red" href="?level=rot#themen">
+                <span class="level-entry-badge">Rot</span>
+                <strong>Schwieriges Niveau</strong>
+                <span>Sie möchten direkt vertieft arbeiten und Varianten begründen.</span>
+              </a>
+            </div>
+          </section>
+
+          <div class="grid-mini">
+            <div class="mini">
+              <strong>Einstieg über QR-Niveau</strong>
+              <span>Sie können direkt mit dem QR-Code für Grün, Gelb oder Rot einsteigen und landen sofort beim passenden Niveau.</span>
+            </div>
+            <div class="mini">
+              <strong>Direkter Einstieg</strong>
+              <span>Sie wählen selbst, mit welchem Thema Sie beginnen.</span>
+            </div>
+            <div class="mini">
+              <strong>Kurzer Abschluss</strong>
+              <span>Am Schluss geben Sie kurzes Feedback und reflektieren Ihren Lernfortschritt.</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel hero-side">
+          <div class="mission-card">
+            <h3>An dieser Station können Sie ...</h3>
+            <ul>
+              <li>Daten eingeben und visuell ansprechend gestalten</li>
+              <li>Daten sauber strukturieren</li>
+              <li>Berechnungen ausführen</li>
+              <li>Kosten-Szenarien vergleichen</li>
+            </ul>
+          </div>
+          <div class="mission-card">
+            <h3>So arbeiten Sie</h3>
+            <p>Sie können entweder über die Themenübersicht einsteigen oder direkt über einen QR-Code für Grün, Gelb oder Rot beim passenden Niveau starten.</p>
+          </div>
+          <div class="mission-card">
+            <h3>Ihr Ziel</h3>
+            <p>Sie erstellen eine übersichtliche, brauchbare und professionell wirkende Kostenübersicht, die Sie für das Projekt direkt nutzen können.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section id="themen">
+        <div class="section-head">
+          <div>
+            <h3>Einstieg über Niveau oder Thema</h3>
+            <p>Sie können entweder ein Thema direkt auswählen oder mit einem QR-Code gezielt auf dem passenden Niveau starten.</p>
+          </div>
+        </div>
+
+        <div class="practice-grid" style="margin-top:0; margin-bottom:18px;">
+          <div class="panel"><strong>QR-Code Grün</strong><p>Der QR-Code führt direkt zu Einsteiger-Aufträgen. Technisch kann er auf eine URL wie <code>?level=gruen</code> zeigen.</p></div>
+          <div class="panel"><strong>QR-Code Gelb</strong><p>Der QR-Code führt direkt zu mittleren Aufträgen. Technisch kann er auf eine URL wie <code>?level=gelb</code> zeigen.</p></div>
+          <div class="panel"><strong>QR-Code Rot</strong><p>Der QR-Code führt direkt zu schwierigen Aufträgen. Technisch kann er auf eine URL wie <code>?level=rot</code> zeigen.</p></div>
+          <div class="panel"><strong>Zusätzliche Idee</strong><p>Auf jeder Themen-Seite kann oben nochmals ein Niveauschalter erscheinen, damit Sie jederzeit zwischen Grün, Gelb und Rot wechseln können.</p></div>
+        </div>
+
+        <div class="section-head">
+          <div>
+            <h3>Themen auswählen</h3>
+            <p>Wählen Sie das Thema, das Sie gerade brauchen. Sie können frei starten und danach weitere Bereiche dazunehmen.</p>
+          </div>
+        </div>
+
+        <div class="topic-grid">
+          <article class="panel stall">
+            <div class="icon">✨</div>
+            <h4>Daten eingeben und visuell ansprechend gestalten</h4>
+            <p>An dieser Station können Sie eine Tabelle so aufbereiten, dass man Zahlen, Kategorien und Total sofort versteht.</p>
+            <div class="levels">
+              <span class="level green">Grün · Einsteiger-Niveau</span>
+              <span class="level yellow">Gelb · mittleres Niveau</span>
+              <span class="level red">Rot · schwieriges Niveau</span>
+            </div>
+            <a class="btn btn-primary" href="#seite-visuell">Thema öffnen</a>
+          </article>
+
+          <article class="panel stall">
+            <div class="icon">🧱</div>
+            <h4>Daten sauber strukturieren</h4>
+            <p>An dieser Station können Sie Titel, Spalten, Einheiten und Kategorien so ordnen, dass alles logisch bleibt.</p>
+            <div class="levels">
+              <span class="level green">Grün · Einsteiger-Niveau</span>
+              <span class="level yellow">Gelb · mittleres Niveau</span>
+              <span class="level red">Rot · schwieriges Niveau</span>
+            </div>
+            <a class="btn btn-primary" href="#seite-struktur">Thema öffnen</a>
+          </article>
+
+          <article class="panel stall">
+            <div class="icon">∑</div>
+            <h4>Berechnungen ausführen</h4>
+            <p>An dieser Station können Sie Material-, Fertigungs- und Gesamtkosten korrekt berechnen und mit Funktionen auswerten.</p>
+            <div class="levels">
+              <span class="level green">Grün · Einsteiger-Niveau</span>
+              <span class="level yellow">Gelb · mittleres Niveau</span>
+              <span class="level red">Rot · schwieriges Niveau</span>
+            </div>
+            <a class="btn btn-primary" href="#seite-berechnungen">Thema öffnen</a>
+          </article>
+
+          <article class="panel stall">
+            <div class="icon">🚀</div>
+            <h4>Kosten-Szenarien vergleichen</h4>
+            <p>An dieser Station können Sie Preise, Zeiten und Varianten vergleichen und herausfinden, welche Lösung sich lohnt.</p>
+            <div class="levels">
+              <span class="level green">Grün · Einsteiger-Niveau</span>
+              <span class="level yellow">Gelb · mittleres Niveau</span>
+              <span class="level red">Rot · schwieriges Niveau</span>
+            </div>
+            <a class="btn btn-primary" href="#seite-szenarien">Thema öffnen</a>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <div>
+            <h3>Was Sie an dieser Station üben können</h3>
+            <p>Diese Website greift die Botschaft des Plakats auf: Excel ist hier nicht nur Rechnen, sondern ein Werkzeug für Übersicht, Qualität und Entscheidung.</p>
+          </div>
+        </div>
+        <div class="practice-grid">
+          <div class="panel"><strong>Selbstständig arbeiten</strong><p>Sie wählen Thema und Niveau selbst.</p></div>
+          <div class="panel"><strong>Hilfen aktiv nutzen</strong><p>Kurze Anweisungen, Videos und Beispiele unterstützen Sie bei der Bearbeitung.</p></div>
+          <div class="panel"><strong>Resultate professionell zeigen</strong><p>Sie gestalten brauchbare, lesbare und überzeugende Kostentabellen.</p></div>
+          <div class="panel"><strong>Reflektiert abschliessen</strong><p>Mini-Feedback und Reflexion zeigen Ihnen, was schon sitzt und was Sie noch üben möchten.</p></div>
+        </div>
+      </section>
+
+      <section class="pages">
+        <article class="panel topic-page" id="seite-visuell">
+          <div class="topic-head">
+            <div class="topic-title">
+              <div class="icon">✨</div>
+              <div>
+                <h4>Daten eingeben und visuell ansprechend gestalten</h4>
+                <p>An dieser Station können Sie lernen, wie Sie eine Tabelle so gestalten, dass sie sofort verständlich und professionell wirkt.</p>
+              </div>
+            </div>
+            <div class="topic-nav">
+              <a class="chip" href="#themen">Zur Themenübersicht</a>
+              <a class="chip" href="#seite-struktur">Nächstes Thema</a>
+            </div>
+          </div>
+
+          <div class="topic-layout">
+            <div class="stack">
+              <section class="box">
+                <h5>Ziele</h5>
+                <div class="goal-list">
+                  <div class="goal">Sie können Zahlen, Titel und Zellen so formatieren, dass die Kostenübersicht professionell wirkt.</div>
+                  <div class="goal">Sie erkennen den Unterschied zwischen einer unübersichtlichen und einer brauchbaren Tabelle.</div>
+                </div>
+              </section>
+              <section class="box">
+                <h5>Kurzauftrag</h5>
+                <ol>
+                  <li>Schauen Sie sich eine rohe Tabelle an.</li>
+                  <li>Formatieren Sie Titel, Spaltenbreiten, Währungen und Hervorhebungen.</li>
+                  <li>Markieren Sie am Schluss den Gesamtpreis klar und sichtbar.</li>
+                </ol>
+              </section>
+              <section class="box">
+                <h5>Wählen Sie Ihr Niveau</h5>
+                <div class="level-cards">
+                  <div class="level-card green"><strong>Grün – Einsteiger-Niveau</strong><span>Formatieren Sie Währung, Titel, Rahmen und Total klar und korrekt.</span></div>
+                  <div class="level-card yellow"><strong>Gelb – Mittleres Niveau</strong><span>Vereinheitlichen Sie zusätzlich Einheiten und verbessern Sie die Lesbarkeit.</span></div>
+                  <div class="level-card red"><strong>Rot – Schwieriges Niveau</strong><span>Gestalten Sie eine Tabelle, die so überzeugend wirkt, dass man sie direkt präsentieren könnte.</span></div>
+                </div>
+              </section>
+            </div>
+
+            <div class="stack">
+              <section class="box video-card">
+                <h5>Lernvideos / Hilfen</h5>
+                <div class="video-slot">
+                  <div>
+                    <strong>Video-Slot</strong>
+                    <div class="helper">Hier kann später ein YouTube-Embed oder ein externer Link eingefügt werden.</div>
+                  </div>
+                </div>
+                <div class="video-links">
+                  <a href="#">▶ Platzhalter: Zahlen formatieren</a>
+                  <a href="#">▶ Platzhalter: Tabellen optisch klar gestalten</a>
+                </div>
+              </section>
+              <section class="box">
+                <h5>Mini-Check</h5>
+                <ul>
+                  <li>Ist sofort sichtbar, was Titel, Kategorie und Total ist?</li>
+                  <li>Sind Zahlen gleich formatiert?</li>
+                  <li>Sieht die Tabelle nach «fertig» aus?</li>
+                </ul>
+              </section>
+            </div>
+          </div>
+
+          <div class="topic-layout" style="margin-top:16px;">
+            <section class="box">
+              <h5>Kurzes Feedback</h5>
+              <form class="quick-form" data-topic="Daten eingeben und visuell ansprechend gestalten">
+                <div class="field-grid">
+                  <div class="field full">
+                    <label>Wie hilfreich war diese Seite?</label>
+                    <div class="radio-row">
+                      <label class="radio-pill"><input type="radio" name="helpful" value="sehr hilfreich"> sehr hilfreich</label>
+                      <label class="radio-pill"><input type="radio" name="helpful" value="hilfreich"> hilfreich</label>
+                      <label class="radio-pill"><input type="radio" name="helpful" value="teilweise"> teilweise</label>
+                      <label class="radio-pill"><input type="radio" name="helpful" value="noch nicht"> noch nicht</label>
+                    </div>
+                  </div>
+                  <div class="field full">
+                    <label for="feedback-visuell">Ein Satz Feedback</label>
+                    <textarea id="feedback-visuell" name="feedback" placeholder="Was war klar? Was fehlt noch?"></textarea>
+                  </div>
+                </div>
+                <div class="actions">
+                  <button type="submit">Feedback lokal speichern</button>
+                  <span class="success">Gespeichert.</span>
+                </div>
+              </form>
+            </section>
+
+            <section class="box" id="reflexion">
+              <h5>Reflexion</h5>
+              <p>Sie können das Reflexionsformular ausfüllen und an Ihre E-Mail-Adresse schicken lassen.</p>
+              <form class="reflection-form" data-topic="Daten eingeben und visuell ansprechend gestalten">
+                <div class="field-grid">
+                  <div class="field full"><label>Heute habe ich gelernt, dass Excel …<textarea name="gelernt" placeholder="z. B. mit guter Formatierung viel professioneller wirkt"></textarea></label></div>
+                  <div class="field"><label>Eine Funktion oder Technik, die ich kennengelernt habe<textarea name="funktion" placeholder="z. B. Währungsformat"></textarea></label></div>
+                  <div class="field"><label>Beim nächsten Mal kann ich besser …<textarea name="naechstes" placeholder="z. B. Zahlen konsequent formatieren"></textarea></label></div>
+                  <div class="field full"><label>Meine Einschätzung<select name="einschaetzung"><option>Ich habe die Aufgabe sehr gut verstanden und selbstständig gelöst</option><option>Ich habe die Aufgabe gut verstanden</option><option>Ich habe die Aufgabe grösstenteils verstanden</option><option>Ich habe die Aufgabe nur teilweise verstanden</option><option>Ich brauche noch Unterstützung</option><option>Ich möchte dieses Thema noch einmal üben</option></select></label></div>
+                  <div class="field full"><label>Das hat mir besonders geholfen<textarea name="geholfen" placeholder="z. B. das Beispiel, das Video oder das Ausprobieren"></textarea></label></div>
+                  <div class="field full"><label>Das möchte ich in Excel noch besser lernen<textarea name="ausblick" placeholder="z. B. Szenarien oder mehrere Funktionen kombinieren"></textarea></label></div>
+                  <div class="field full"><label>E-Mail für Kopie (optional)<input type="email" name="email" placeholder="name@beispiel.ch"></label></div>
+                </div>
+                <div class="actions">
+                  <button type="submit" class="btn-primary">Reflexion als Mail schicken</button>
+                  <span class="success">Reflexion gespeichert.</span>
+                </div>
+              </form>
+            </section>
+          </div>
+        </article>
+
+        <article class="panel topic-page" id="seite-struktur">
+          <div class="topic-head">
+            <div class="topic-title">
+              <div class="icon">🧱</div>
+              <div>
+                <h4>Daten sauber strukturieren</h4>
+                <p>An dieser Station können Sie eine Kostenübersicht so aufbauen, dass Kategorien, Positionen und Einheiten logisch angeordnet sind.</p>
+              </div>
+            </div>
+            <div class="topic-nav">
+              <a class="chip" href="#seite-visuell">Vorheriges Thema</a>
+              <a class="chip" href="#seite-berechnungen">Nächstes Thema</a>
+            </div>
+          </div>
+          <div class="topic-layout">
+            <div class="stack">
+              <section class="box"><h5>Ziele</h5><div class="goal-list"><div class="goal">Sie können eine Tabelle mit sinnvollen Überschriften, Kategorien und Positionen strukturieren.</div><div class="goal">Sie verstehen, warum eine gute Struktur Fehler reduziert.</div></div></section>
+              <section class="box"><h5>Kurzauftrag</h5><ol><li>Ordnen Sie die Angaben Material, Fertigung und Total in einer klaren Tabelle.</li><li>Ergänzen Sie passende Spalten wie Menge, Preis und Zwischentotal.</li><li>Prüfen Sie, ob jemand Fremdes die Tabelle sofort versteht.</li></ol></section>
+              <section class="box"><h5>Wählen Sie Ihr Niveau</h5><div class="level-cards"><div class="level-card green"><strong>Grün – Einsteiger-Niveau</strong><span>Setzen Sie Titel, Spalten und Kategorien korrekt.</span></div><div class="level-card yellow"><strong>Gelb – Mittleres Niveau</strong><span>Ergänzen Sie Einheiten und bauen Sie Zwischentotale ein.</span></div><div class="level-card red"><strong>Rot – Schwieriges Niveau</strong><span>Strukturieren Sie die Tabelle so, dass mehrere Varianten leicht ergänzt werden können.</span></div></div></section>
+            </div>
+            <div class="stack">
+              <section class="box video-card"><h5>Lernvideos / Hilfen</h5><div class="video-slot"><div><strong>Video-Slot</strong><div class="helper">z. B. Aufbau einer guten Excel-Tabelle</div></div></div><div class="video-links"><a href="#">▶ Platzhalter: Tabellen logisch aufbauen</a><a href="#">▶ Platzhalter: Kategorien und Spalten sinnvoll setzen</a></div></section>
+              <section class="box"><h5>Mini-Check</h5><ul><li>Sind alle Kategorien eindeutig benannt?</li><li>Ist ersichtlich, welche Daten zusammengehören?</li><li>Ist die Struktur für weitere Varianten offen?</li></ul></section>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel topic-page" id="seite-berechnungen">
+          <div class="topic-head">
+            <div class="topic-title">
+              <div class="icon">∑</div>
+              <div>
+                <h4>Berechnungen ausführen</h4>
+                <p>An dieser Station können Sie Materialkosten, Fertigungskosten und den Gesamtpreis sauber berechnen.</p>
+              </div>
+            </div>
+            <div class="topic-nav">
+              <a class="chip" href="#seite-struktur">Vorheriges Thema</a>
+              <a class="chip" href="#seite-szenarien">Nächstes Thema</a>
+            </div>
+          </div>
+          <div class="topic-layout">
+            <div class="stack">
+              <section class="box"><h5>Ziele</h5><div class="goal-list"><div class="goal">Sie können Formeln für Zwischentotale und Gesamtpreise korrekt eingeben.</div><div class="goal">Sie können passende Funktionen auswählen und korrekt anwenden.</div></div></section>
+              <section class="box"><h5>Kurzauftrag</h5><ol><li>Berechnen Sie Materialkosten pro Position.</li><li>Berechnen Sie Fertigungskosten mit Zeit × Stundensatz.</li><li>Nutzen Sie SUMME, MITTELWERT, MIN oder MAX dort, wo es sinnvoll ist.</li></ol></section>
+              <section class="box"><h5>Wählen Sie Ihr Niveau</h5><div class="level-cards"><div class="level-card green"><strong>Grün – Einsteiger-Niveau</strong><span>Rechnen Sie mit einfachen Zellbezügen und einer Grundfunktion.</span></div><div class="level-card yellow"><strong>Gelb – Mittleres Niveau</strong><span>Nutzen Sie mehrere Formeln und Funktionen innerhalb einer Tabelle.</span></div><div class="level-card red"><strong>Rot – Schwieriges Niveau</strong><span>Werten Sie die Resultate zusätzlich aus und begründen Sie Ihr Ergebnis.</span></div></div></section>
+            </div>
+            <div class="stack">
+              <section class="box video-card"><h5>Lernvideos / Hilfen</h5><div class="video-slot"><div><strong>Video-Slot</strong><div class="helper">z. B. Formeln und Funktionen in Excel korrekt einsetzen</div></div></div><div class="video-links"><a href="#">▶ Platzhalter: Zellbezüge verstehen</a><a href="#">▶ Platzhalter: SUMME, MITTELWERT, MIN, MAX</a></div></section>
+              <section class="box"><h5>Mini-Check</h5><ul><li>Stimmt jedes Zwischentotal?</li><li>Wurde der Stundensatz richtig einbezogen?</li><li>Können Sie das Resultat erklären?</li></ul></section>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel topic-page" id="seite-szenarien">
+          <div class="topic-head">
+            <div class="topic-title">
+              <div class="icon">🚀</div>
+              <div>
+                <h4>Kosten-Szenarien vergleichen</h4>
+                <p>An dieser Station können Sie vergleichen, was passiert, wenn Preise, Zeiten oder Materialien variieren.</p>
+              </div>
+            </div>
+            <div class="topic-nav">
+              <a class="chip" href="#seite-berechnungen">Vorheriges Thema</a>
+              <a class="chip" href="#start">Zum Start</a>
+            </div>
+          </div>
+          <div class="topic-layout">
+            <div class="stack">
+              <section class="box"><h5>Ziele</h5><div class="goal-list"><div class="goal">Sie können mehrere Varianten vergleichen und begründen, welche Lösung sinnvoller ist.</div><div class="goal">Sie erkennen, wie Excel Entscheidungen unterstützt.</div></div></section>
+              <section class="box"><h5>Kurzauftrag</h5><ol><li>Ändern Sie Preis oder Zeit in einer Variante.</li><li>Vergleichen Sie zwei oder drei Gesamtkosten.</li><li>Entscheiden Sie: Welche Variante lohnt sich und warum?</li></ol></section>
+              <section class="box"><h5>Wählen Sie Ihr Niveau</h5><div class="level-cards"><div class="level-card green"><strong>Grün – Einsteiger-Niveau</strong><span>Vergleichen Sie zwei einfache Preisstände.</span></div><div class="level-card yellow"><strong>Gelb – Mittleres Niveau</strong><span>Begründen Sie, welche Variante wirtschaftlicher ist.</span></div><div class="level-card red"><strong>Rot – Schwieriges Niveau</strong><span>Nutzen Sie den Szenario-Manager oder simulieren Sie drei Varianten in einer Tabelle.</span></div></div></section>
+            </div>
+            <div class="stack">
+              <section class="box video-card"><h5>Lernvideos / Hilfen</h5><div class="video-slot"><div><strong>Video-Slot</strong><div class="helper">z. B. Was-wäre-wenn-Analyse oder Szenario-Manager</div></div></div><div class="video-links"><a href="#">▶ Platzhalter: Varianten vergleichen</a><a href="#">▶ Platzhalter: Szenario-Manager</a></div></section>
+              <section class="box"><h5>Mini-Check</h5><ul><li>Welche Eingabe verändert den Preis am stärksten?</li><li>Können Sie Ihre Wahl begründen?</li><li>Ist das Ergebnis für andere verständlich dargestellt?</li></ul></section>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="footer-note">
+        Für den Einstieg über drei QR-Codes ist folgende Struktur sinnvoll: ein QR-Code zeigt auf <code>index.html?level=gruen</code>, einer auf <code>index.html?level=gelb</code> und einer auf <code>index.html?level=rot</code>. Beim Laden der Seite wird automatisch das passende Niveau hervorgehoben und der Einstieg auf diese Auswahl gelenkt.
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const saveToLocal = (key, data) => {
+      localStorage.setItem(key, JSON.stringify({ ...data, savedAt: new Date().toISOString() }));
+    };
+
+    const levelOrder = ['gruen', 'gelb', 'rot'];
+    const levelLabels = {
+      gruen: 'Grün – Einsteiger-Niveau',
+      gelb: 'Gelb – mittleres Niveau',
+      rot: 'Rot – schwieriges Niveau'
+    };
+
+    const params = new URLSearchParams(window.location.search);
+    const activeLevel = params.get('level');
+
+    const highlightLevel = (level) => {
+      if (!levelOrder.includes(level)) return;
+
+      const infoBox = document.createElement('div');
+      infoBox.className = 'panel';
+      infoBox.style.padding = '16px 18px';
+      infoBox.style.marginBottom = '18px';
+      infoBox.innerHTML = `
+        <strong style="display:block; color: var(--accent); text-transform: uppercase; margin-bottom:8px;">Aktives Niveau</strong>
+        <p style="margin:0; color: var(--muted); line-height:1.55;">
+          Sie sind über den QR-Code für <strong style="color: var(--text);">${levelLabels[level]}</strong> eingestiegen.
+          Die passenden Niveaustufen sind unten hervorgehoben.
+        </p>`;
+
+      const main = document.querySelector('.main');
+      const hero = document.querySelector('.hero');
+      if (main && hero) main.insertBefore(infoBox, hero);
+
+      document.querySelectorAll('.level, .level-card').forEach((el) => {
+        el.style.opacity = '.52';
+        el.style.transform = 'scale(.985)';
+        el.style.transition = '.2s ease';
+      });
+
+      const classMap = { gruen: 'green', gelb: 'yellow', rot: 'red' };
+      document.querySelectorAll(`.level.${classMap[level]}, .level-card.${classMap[level]}`).forEach((el) => {
+        el.style.opacity = '1';
+        el.style.transform = 'scale(1)';
+        el.style.boxShadow = '0 0 0 2px rgba(255,185,69,.25), 0 8px 24px rgba(255,185,69,.12)';
+      });
+
+      document.querySelectorAll('.topic-page').forEach((page) => {
+        const targetCard = Array.from(page.querySelectorAll('.level-card')).find((card) => card.classList.contains(classMap[level]));
+        if (!targetCard) return;
+        const box = targetCard.closest('.box');
+        if (box && !box.querySelector('.level-hint')) {
+          const hint = document.createElement('p');
+          hint.className = 'helper level-hint';
+          hint.style.margin = '0 0 10px';
+          hint.innerHTML = `Empfohlen für Ihren Einstieg: <strong style="color: var(--accent-2);">${levelLabels[level]}</strong>`;
+          const levelCards = box.querySelector('.level-cards');
+          if (levelCards) box.insertBefore(hint, levelCards);
+        }
+      });
+
+      const targetSection = document.querySelector('#themen');
+      if (targetSection) {
+        setTimeout(() => targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+      }
+    };
+
+    document.querySelectorAll('.quick-form').forEach((form, index) => {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(form).entries());
+        saveToLocal(`quick-feedback-${index}`, data);
+        const success = form.querySelector('.success');
+        if (success) {
+          success.style.display = 'inline';
+          setTimeout(() => success.style.display = 'none', 2400);
+        }
+      });
+    });
+
+    const buildReflectionMail = (data, topic) => {
+      const subject = encodeURIComponent(`Reflexion Excel-Posten – ${topic}`);
+      const body = encodeURIComponent(
+`Thema: ${topic}\n\nHeute habe ich gelernt, dass Excel ...\n${data.gelernt || ''}\n\nEine Funktion / Technik, die ich kennengelernt habe:\n${data.funktion || ''}\n\nBeim nächsten Mal kann ich besser ...\n${data.naechstes || ''}\n\nMeine Einschätzung:\n${data.einschaetzung || ''}\n\nDas hat mir besonders geholfen:\n${data.geholfen || ''}\n\nDas möchte ich in Excel noch besser lernen:\n${data.ausblick || ''}`
+      );
+      return `mailto:${encodeURIComponent(data.email || '')}?subject=${subject}&body=${body}`;
+    };
+
+    document.querySelectorAll('.reflection-form').forEach((form, index) => {
+      const success = form.querySelector('.success');
+      const topic = form.dataset.topic || `Thema-${index + 1}`;
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(form).entries());
+        saveToLocal(`reflection-${index}`, data);
+        const href = buildReflectionMail(data, topic);
+        if (success) {
+          success.textContent = 'Reflexion wird vorbereitet.';
+          success.style.display = 'inline';
+          setTimeout(() => success.style.display = 'none', 1800);
+        }
+        window.location.href = href;
+      });
+    });
+
+    if (activeLevel) highlightLevel(activeLevel);
+  </script>
+</body>
+</html>
